@@ -4,7 +4,7 @@ import tehkas_connect
 from datetime import datetime, timedelta, time
 import pandas as pd
 from pandas.io.excel import ExcelWriter
-from stats_to_excel import remove_excel_sheet, create_chart_all_tickets
+from stats_to_excel import remove_excel_sheet
 import stats_to_excel
 from calculation_of_statistics import *
 
