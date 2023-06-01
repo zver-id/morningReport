@@ -107,14 +107,22 @@ def registred_yesterday(reference):
     reference.DelWhere(yesterday)
     return incoming
 
-def not_closed(reference):
-    ticket_status = ['Р', 'К', 'И', 'П']
+def not_closed(reference, days, active=False):
+    if active:
+        ticket_status = ['Р']
+    else:
+        ticket_status = ['Р', 'К', 'И', 'П']
     ticket_status = tehkas_connect.return_query(ticket_status, "СостОбращения", reference)
     ticket_status = reference.AddWhere(ticket_status)
 
     tickets_type = ['И', 'К', 'З']
     tickets_type = command = tehkas_connect.return_query(tickets_type, "ТипОбращения", reference)
     tickets_type = reference.AddWhere(tickets_type)
+
+    # Убираем анонимки
+    not_anonymous = '30262732'  # анонимки (Код-338)
+    not_anonymous = f"{tickets.TableName}.{tickets.Requisites('ОбластьПоддержки').FieldName} <> {not_anonymous}"
+    not_anonymous = tickets.AddWhere(not_anonymous)
 
     reference.Open()
     reference.First()
@@ -127,7 +135,7 @@ def not_closed(reference):
         created_date = datetime.strptime(reference.Requisites("ДатОткр").AsString, '%d.%m.%Y')
         difference_in_days = datetime.today() - created_date
 
-        if difference_in_days >= timedelta(days=28):
+        if difference_in_days >= timedelta(days=days):
             tickets_list["older_four_weeks"] += 1
             list_of_old_tickets.append([reference.Requisites("ДатОткр").AsString,
                                         reference.Requisites("Код").AsString,
@@ -137,6 +145,7 @@ def not_closed(reference):
         tehkas_connect.next_ticket(reference)
     reference.DelWhere(ticket_status)
     reference.DelWhere(tickets_type)
+    reference.DelWhere(not_anonymous)
 
     return tickets_list, list_of_old_tickets
 

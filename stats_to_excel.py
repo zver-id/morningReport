@@ -35,8 +35,6 @@ def get_dict_of_cell_number(filename):
             index += 1
     return dict_of_cell_number
 
-
-
 def remove_excel_sheet(name, filename):
     book = xls.load_workbook(filename)
     if name in book.sheetnames:
@@ -72,10 +70,10 @@ def create_area_chart(book, line_names):
         series = Reference(book["tables"], min_col=start_column, max_col= last_column, min_row=row, max_row=row)
         area_chart.add_data(series, from_rows=True)
 
-    area_chart.series[0].graphicalProperties.solidFill = '98FB98'  # Первая зона зеленая
-    area_chart.series[1].graphicalProperties.solidFill = 'EEE8AA'  # Вторая - песчаная
-    area_chart.series[2].graphicalProperties.solidFill = 'FFFF00'  # Третья - желтая
-    area_chart.series[3].graphicalProperties.solidFill = 'DC143C'  # Четвертая - красная
+    area_chart.series[0].graphicalProperties.solidFill = 'C3D69B'  # Первая зона зеленая
+    area_chart.series[1].graphicalProperties.solidFill = 'FFF2CC'  # Вторая - песчаная
+    area_chart.series[2].graphicalProperties.solidFill = 'FFC000'  # Третья - желтая
+    area_chart.series[3].graphicalProperties.solidFill = 'FF4F4F'  # Четвертая - красная
 
     category = Reference(book["tables"], min_col=start_column, max_col= last_column, min_row=1, max_row=1)
     area_chart.set_categories(category)
@@ -135,13 +133,13 @@ def style_text_sheet_data_table(filename, name):
 
     book.save(filename)
 
-def insert_old_tickets(filename, old_tikets):
+def insert_old_tickets(filename, old_tikets, name_of_sheet):
     book = xls.load_workbook(filename)
-    if "Старые обращения" in book.sheetnames:
-        remove_excel_sheet("Старые обращения", filename)
-    create_excel_sheet("Старые обращения", filename)
+    if name_of_sheet in book.sheetnames:
+        remove_excel_sheet(name_of_sheet, filename)
+    create_excel_sheet(name_of_sheet, filename)
     book = xls.load_workbook(filename)
-    sheet = book["Старые обращения"]
+    sheet = book[name_of_sheet]
     for row in old_tikets:
         sheet.append(row)
     sheet.insert_rows(0)

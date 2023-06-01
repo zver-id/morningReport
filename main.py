@@ -88,7 +88,9 @@ def calculate_stats(config_path, data_file_path):
 
     statistics.loc["Старше 2 недель", current_day] = count_14_days
     statistics.loc["Старше 3 недель", current_day] = count_21_days
-    old_tickets_count, old_tickets_list = not_closed(tickets)
+    old_tickets_count, old_tickets_list = not_closed(tickets, 28)
+    old_3_weeks_count, old_3_weeks_list = not_closed(tickets, 21, active=True)
+    old_2_weeks_count, old_2_weeks_list = not_closed(tickets, 14, active=True)
     statistics.loc['Старше 4 недель', current_day] = old_tickets_count['older_four_weeks']
     statistics.loc['Хвост', current_day] = old_tickets_count['not_closed']
     print("Посчитал старье")
@@ -126,7 +128,9 @@ def calculate_stats(config_path, data_file_path):
     stats_to_excel.style_text_sheet_data_table(data_file_path, 'tables')
 
     stats_to_excel.remove_excel_sheet("Старые обращения", data_file_path)
-    stats_to_excel.insert_old_tickets(data_file_path, old_tickets_list)
+    stats_to_excel.insert_old_tickets(data_file_path, old_tickets_list, "Старше 4 недель")
+    stats_to_excel.insert_old_tickets(data_file_path, old_3_weeks_list, "Старше 3 недель")
+    stats_to_excel.insert_old_tickets(data_file_path, old_2_weeks_list, "Старше 2 недель")
 
     stats_to_excel.write_chars_to_file(data_file_path)
 
