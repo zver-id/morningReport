@@ -110,7 +110,7 @@ def calculate_stats(config_path, data_file_path):
     ticket_time.sort_values("Время в работе", ascending=False)
     ticket_time_consultation.sort_values("Время в работе", ascending=False)
 
-    print("Посчитал все статы команды, пошел записывать в ексель")
+    print("Посчитал все статы команды, пошел записывать в Excel")
 
     stats_to_excel.remove_excel_sheet("Графики", data_file_path)
     stats_to_excel.create_excel_sheet("Графики", data_file_path)

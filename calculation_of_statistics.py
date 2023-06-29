@@ -47,6 +47,11 @@ def old_tickets(reference, config, days, active=True):
         in_work = ['Р', 'К', 'И', 'П']
     in_work = tehkas_connect.return_query(in_work, "СостОбращения", reference)
     in_work = reference.AddWhere(in_work)
+
+    tickets_type = ['И', 'К', 'З']
+    tickets_type = command = tehkas_connect.return_query(tickets_type, "ТипОбращения", reference)
+    tickets_type = reference.AddWhere(tickets_type)
+
     reference.Open()
     reference.First()
 
@@ -62,6 +67,7 @@ def old_tickets(reference, config, days, active=True):
                 employee_list[config["command_tab_num"][reference.Requisites("Работник").AsString]] += 1
         tehkas_connect.next_ticket(reference)
     reference.DelWhere(in_work)
+    reference.DelWhere(tickets_type)
     return employee_list
 
 def getTicketsCountByType(ticket_type, reference):
@@ -121,8 +127,8 @@ def not_closed(reference, days, active=False):
 
     # Убираем анонимки
     not_anonymous = '30262732'  # анонимки (Код-338)
-    not_anonymous = f"{tickets.TableName}.{tickets.Requisites('ОбластьПоддержки').FieldName} <> {not_anonymous}"
-    not_anonymous = tickets.AddWhere(not_anonymous)
+    not_anonymous = f"{reference.TableName}.{reference.Requisites('ОбластьПоддержки').FieldName} <> {not_anonymous}"
+    not_anonymous = reference.AddWhere(not_anonymous)
 
     reference.Open()
     reference.First()
@@ -150,12 +156,18 @@ def not_closed(reference, days, active=False):
     return tickets_list, list_of_old_tickets
 
 def time_zones(reference, tickets_type):
-    #tickets_type = ['И']
+
     tickets_type = tehkas_connect.return_query(tickets_type, "ТипОбращения", reference)
     tickets_type = reference.AddWhere(tickets_type)
     ticket_status = ['Р', 'К', 'И', 'П']
     ticket_status = tehkas_connect.return_query(ticket_status, "СостОбращения", reference)
     ticket_status = reference.AddWhere(ticket_status)
+
+    #Убираем анонимки
+    not_anonymous = '30262732'  # анонимки (Код-338)
+    not_anonymous = f"{reference.TableName}.{reference.Requisites('ОбластьПоддержки').FieldName} <> {not_anonymous}"
+    not_anonymous = reference.AddWhere(not_anonymous)
+
     ticket_time = pd.DataFrame(columns=["Номер обращения", "Описание", "Состояние обращения", "Ответсвенный",
                                         "Время в работе", "Приоритет", "Организация"])
     HOLYDAYS = ["23.2", "24.2", "8.3", "1.5", "8.5", "9.5", "12.6", "6.11"]  #TODO: вынести в конфиг
@@ -230,6 +242,7 @@ def time_zones(reference, tickets_type):
         tehkas_connect.next_ticket(reference)
     reference.DelWhere(tickets_type)
     reference.DelWhere(tickets_type)
+    reference.DelWhere(not_anonymous)
     return time_zone, ticket_time
 
 def get_negative_grades(reference, COMMAND):
